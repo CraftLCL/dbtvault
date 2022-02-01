@@ -1,1 +1,9 @@
 dbt_packages/
+macros/internal
+macros/materialisations
+macros/staging
+macros/supporting
+macros/supporting
+macros/tables/bigquery
+macros/tables/databricks
+macros/tables/sqlserver

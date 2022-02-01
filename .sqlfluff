@@ -1,5 +1,8 @@
 [sqlfluff]
 templater = dbt
 
-[sqlfluff:templater:jinja]
-load_macros_from_path = dbtvault-dev/macros
+[sqlfluff:templater:dbt]
+project_dir = dbtvault-dev
+profiles_dir = env
+profile = dbtvault
+target = snowflake
