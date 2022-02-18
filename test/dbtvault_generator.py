@@ -411,16 +411,13 @@ def escape_column_names_macro(model_name, **_):
 
 
 def process_sat_payload_columns_macro(model_name, **_):
-    # template = f"""
-    # -- depends_on: {{{{ ref('raw_source') }}}}
-    # {{% if execute %}}
-    # {{{{ dbtvault.process_sat_payload_columns(payload_columns=var('payload_columns', none),
-    # source_model=var('source_model', none)) }}}}
-    # {{% endif %}}
-    # """
-
-    template = "{{- dbtvault.process_sat_payload_columns(payload_columns=var('payload_columns', none), " \
-               "source_model=var('source_model', none)) -}}"
+    template = f"""
+    -- depends_on: {{{{ ref('raw_source') }}}}
+    {{% if execute %}}
+    {{{{ dbtvault.process_sat_payload_columns(payload_columns=var('payload_columns', none),
+    source_model=var('source_model', none)) }}}}
+    {{% endif %}}
+    """
 
     template_to_file(template, model_name)
 

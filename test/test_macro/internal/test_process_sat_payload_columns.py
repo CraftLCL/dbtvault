@@ -7,7 +7,7 @@ macro_name = "process_sat_payload_columns"
 
 @pytest.mark.macro
 def test_process_sat_payload_columns_excluded_columns_as_list_is_successful(request, generate_model):
-    var_dict = {'payload_columns': {'exclude_columns': True, 'columns': 'BOOKING_FK'}, 'source_model': 'raw_source'}
+    var_dict = {'payload_columns': {'exclude_columns': True, 'columns': ['BOOKING_FK']}, 'source_model': 'raw_source'}
 
     generate_model()
 
