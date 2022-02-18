@@ -20,10 +20,19 @@
         {%- else -%}
             {%- set payload_columns_to_select = payload_columns.columns -%}
         {%- endif -%}
-    {%- else -%}
+    {%- elif dbtvault.is_list(payload_columns) -%}
         {%- set payload_columns_to_select = payload_columns -%}
+
+    {%- elif payload_columns is string -%}
+
+        {%- if execute -%}
+            {{- exceptions.raise_compiler_error("Invalid column name(s) provided. Must be a string.") -}}
+        {%- endif -%}
+
     {%- endif -%}
 
     {%- do return(payload_columns_to_select) -%}
+
+    {%  do log('It works', true) %}
 
 {%- endmacro -%}

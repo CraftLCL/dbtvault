@@ -329,7 +329,8 @@ def macro_model(model_name, macro_name, metadata=None):
         "as_constant": as_constant_macro,
         "alias": alias_macro,
         "alias_all": alias_all_macro,
-        "escape_column_names": escape_column_names_macro
+        "escape_column_names": escape_column_names_macro,
+        "process_sat_payload_columns": process_sat_payload_columns_macro
     }
 
     if generator_functions.get(macro_name):
@@ -405,6 +406,21 @@ def expand_column_list_macro(model_name, **_):
 
 def escape_column_names_macro(model_name, **_):
     template = "{{- dbtvault.escape_column_names(columns=var('columns', none)) -}}"
+
+    template_to_file(template, model_name)
+
+
+def process_sat_payload_columns_macro(model_name, **_):
+    # template = f"""
+    # -- depends_on: {{{{ ref('raw_source') }}}}
+    # {{% if execute %}}
+    # {{{{ dbtvault.process_sat_payload_columns(payload_columns=var('payload_columns', none),
+    # source_model=var('source_model', none)) }}}}
+    # {{% endif %}}
+    # """
+
+    template = "{{- dbtvault.process_sat_payload_columns(payload_columns=var('payload_columns', none), " \
+               "source_model=var('source_model', none)) -}}"
 
     template_to_file(template, model_name)
 
