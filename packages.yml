@@ -1,1 +1,3 @@
 packages:
+  - git: "https://github.com/CraftLCL/dbt-utils.git"
+    revision: Branch_0.8.2_pgsql
