@@ -17,6 +17,8 @@
     {%- set start_stop_dates = dbtvault.get_start_stop_dates(timestamp_field, date_source_models) | as_native -%}
 
     {%- set period = config.get('period', default='day') -%}
+
+    {%- set unique_key = config.get('unique_key', default=none) -%}
     {%- set to_drop = [] -%}
 
     {%- do dbtvault.check_placeholder(sql) -%}
@@ -89,6 +91,16 @@
 
             {{ adapter.expand_target_column_types(from_relation=tmp_relation,
                                                   to_relation=target_relation) }}
+
+            {% if unique_key is not none%}
+                {%call statement()%}
+                    DELETE FROM {{ target_relation }} 
+                    where ({{unique_key}}) in(
+                        select ({{unique_key}})
+                        from {{ tmp_relation.include(schema=True) }}
+                    )
+                {%endcall%}
+            {%endif%}
 
             {%- set insert_query_name = 'main-' ~ i -%}
             {% call statement(insert_query_name, fetch_result=True) -%}

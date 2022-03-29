@@ -109,6 +109,7 @@
     {% do return(period_boundaries) %}
 {%- endmacro %}
 
+{# 时间间隔仅支持到天 #}
 {% macro postgres__get_period_boundaries(target_schema, target_table, timestamp_field, start_date, stop_date, period) -%}
 
     {% set period_boundary_sql -%}
