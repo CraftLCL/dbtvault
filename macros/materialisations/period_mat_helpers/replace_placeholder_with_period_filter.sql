@@ -60,3 +60,18 @@
 
     {% do return(filtered_sql) %}
 {% endmacro %}
+
+{% macro postgres__replace_placeholder_with_period_filter(core_sql, timestamp_field, start_timestamp, stop_timestamp, offset, period) %}
+
+    {%- set period_filter -%}
+        ({{ timestamp_field }} :: timestamp
+        >= DATE_TRUNC('{{ period }}', '{{ start_timestamp }}':: timestamp + INTERVAL '{{ offset }} {{ period }}') AND
+             {{ timestamp_field }} :: timestamp < DATE_TRUNC('{{ period }}', '{{ start_timestamp }}':: timestamp + INTERVAL '{{ offset }} {{ period }}' + INTERVAL '1 {{ period }}'))
+      AND ({{ timestamp_field }}:: timestamp >= '{{ start_timestamp }}' :: timestamp)
+    {%- endset -%}
+    {%- set filtered_sql = core_sql | replace("__PERIOD_FILTER__", period_filter) -%}
+
+    {% do return(filtered_sql) %}
+{% endmacro %}
+
+

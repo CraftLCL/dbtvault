@@ -1,3 +1,4 @@
+{# 默认的支持pg #}
 {%- macro replace_placeholder_with_rank_filter(core_sql, rank_column, rank_iteration) -%}
 
     {% set macro = adapter.dispatch('replace_placeholder_with_rank_filter',

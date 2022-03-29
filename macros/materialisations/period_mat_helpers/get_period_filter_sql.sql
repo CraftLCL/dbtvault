@@ -13,7 +13,7 @@
 
 
 
-
+{# pgsql支持CTE子查询，可以使用这个默认的 #}
 {% macro default__get_period_filter_sql(target_cols_csv, base_sql, timestamp_field, period, start_timestamp, stop_timestamp, offset) -%}
 
     {%- set filtered_sql = {'sql': base_sql} -%}

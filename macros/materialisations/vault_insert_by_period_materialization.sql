@@ -3,6 +3,7 @@
     {%- set full_refresh_mode = (should_full_refresh()) -%}
 
     {% if target.type == "sqlserver" %}
+    {# this.incorporate() to hardcode the node's type as otherwise dbt doesn't know it yet  告诉dbt这个节点的类型是table#}
         {%- set target_relation = this.incorporate(type='table') -%}
     {%  else %}
         {%- set target_relation = this -%}
@@ -31,6 +32,7 @@
                                                                        start_stop_dates.start_date,
                                                                        start_stop_dates.stop_date,
                                                                        0, period) %}
+        {# create_table_as是dbt官方提供的函数                                                              #}
         {% set build_sql = create_table_as(False, target_relation, filtered_sql) %}
         {% do to_drop.append(tmp_relation) %}
 

@@ -17,6 +17,7 @@
     {%- if condition in ['<>', '!=', '='] -%}
         {%- for col in columns -%}
             {%- if prefix -%}
+            {# 注意这里 #}
                 {{- dbtvault.prefix([col], prefix[0], alias_target='target') }} {{ condition }} {{ dbtvault.prefix([col], prefix[1]) -}}
             {%- endif %}
             {%- if not loop.last %} {{ operator }} {% endif -%}

@@ -6,6 +6,8 @@
 
 {%- endmacro -%}
 
+{# 用于生成  r.name  递归调用  注意 43行#}
+
 {%- macro default__prefix(columns=none, prefix_str=none, alias_target='source') -%}
 
     {%- if columns and prefix_str -%}
