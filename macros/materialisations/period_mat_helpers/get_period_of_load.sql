@@ -79,7 +79,9 @@
         {% endif %}       
         ) AS period_of_load
     {%- endset %} #}
+    {% set period_of_load_sql -%}
     SELECT DATE_TRUNC('{{ period }}','{{ start_timestamp }}'::timestamp + interval '{{ offset }} {{ period }}'  ) AS period_of_load
+    {%- endset %}
     {% set period_of_load_dict = dbtvault.get_query_results_as_dict(period_of_load_sql) %}
 
     {% set period_of_load = period_of_load_dict['PERIOD_OF_LOAD'][0] | string %}

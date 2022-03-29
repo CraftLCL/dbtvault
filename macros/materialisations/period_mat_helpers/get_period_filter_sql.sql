@@ -13,7 +13,7 @@
 
 
 
-{# pgsql支持CTE子查询，可以使用这个默认的 #}
+
 {% macro default__get_period_filter_sql(target_cols_csv, base_sql, timestamp_field, period, start_timestamp, stop_timestamp, offset) -%}
 
     {%- set filtered_sql = {'sql': base_sql} -%}
@@ -40,4 +40,17 @@
                                                                                        offset, period)}) -%}
     {# MSSQL does not allow CTEs in a subquery #}
     {{ filtered_sql.sql }}
+{%- endmacro %}
+
+{# pgsql支持CTE子查询，但子查询必须要有别名所以最后加了个A #}
+{% macro postgres__get_period_filter_sql(target_cols_csv, base_sql, timestamp_field, period, start_timestamp, stop_timestamp, offset) -%}
+
+    {%- set filtered_sql = {'sql': base_sql} -%}
+
+    {%- do filtered_sql.update({'sql': dbtvault.replace_placeholder_with_period_filter(filtered_sql.sql,
+                                                                                       timestamp_field,
+                                                                                       start_timestamp,
+                                                                                       stop_timestamp,
+                                                                                       offset, period)}) -%}
+    select {{ target_cols_csv }} from ({{ filtered_sql.sql }}) A
 {%- endmacro %}
