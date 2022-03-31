@@ -84,7 +84,7 @@
     {%- endset %}
     {% set period_of_load_dict = dbtvault.get_query_results_as_dict(period_of_load_sql) %}
 
-    {% set period_of_load = period_of_load_dict['PERIOD_OF_LOAD'][0] | string %}
+    {% set period_of_load = period_of_load_dict['period_of_load'][0] | string %}
 
     {% do return(period_of_load) %}
 {%- endmacro -%}

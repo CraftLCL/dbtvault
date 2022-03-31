@@ -109,14 +109,31 @@
     {% do return(period_boundaries) %}
 {%- endmacro %}
 
-{# 时间间隔仅支持到天 #}
+{#原来仅支持到天  现修改 #}
 {% macro postgres__get_period_boundaries(target_schema, target_table, timestamp_field, start_date, stop_date, period) -%}
 
-    {% set period_boundary_sql -%}
+    {# {% set period_boundary_sql -%}
         WITH period_data AS (
             SELECT
                 COALESCE(MAX({{ timestamp_field }}), '{{ start_date }}')::TIMESTAMP AS start_timestamp,
                 COALESCE({{ dbt_utils.dateadd('millisecond', 86399999, "NULLIF('" ~ stop_date | lower ~ "','none')::TIMESTAMP") }},
+                         {{ dbtvault.current_timestamp() }} ) AS stop_timestamp
+            FROM {{ target_schema }}.{{ target_table }}
+        )
+        SELECT
+            start_timestamp,
+            stop_timestamp,
+            {{ dbt_utils.datediff('start_timestamp',
+                                  'stop_timestamp',
+                                  period) }} + 1 AS num_periods
+        FROM period_data
+    {%- endset %} #}
+
+    {% set period_boundary_sql -%}
+        WITH period_data AS (
+            SELECT
+                COALESCE('{{ start_date }}'::TIMESTAMP AS start_timestamp,
+                COALESCE({{  "NULLIF('" ~ stop_date | lower ~ "','none')::TIMESTAMP" }},
                          {{ dbtvault.current_timestamp() }} ) AS stop_timestamp
             FROM {{ target_schema }}.{{ target_table }}
         )
