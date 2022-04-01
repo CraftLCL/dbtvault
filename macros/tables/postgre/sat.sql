@@ -41,19 +41,9 @@ latest_records AS (
     SELECT {{ dbtvault.prefix(rank_cols, 'a', alias_target='target') }}
     FROM
     (
-        SELECT {{ dbtvault.prefix(rank_cols, 'current_records', alias_target='target') }},
-            RANK() OVER (
-               PARTITION BY {{ dbtvault.prefix([src_pk], 'current_records') }}
-               ORDER BY {{ dbtvault.prefix([src_ldts], 'current_records') }} DESC
-            ) AS rank
+        SELECT {{ dbtvault.prefix(rank_cols, 'current_records', alias_target='target') }}
         FROM {{ this }} AS current_records
-            JOIN (
-                SELECT DISTINCT {{ dbtvault.prefix([src_pk], 'source_data') }}
-                FROM source_data
-            ) AS source_records
-                ON {{ dbtvault.multikey(src_pk, prefix=['current_records','source_records'], condition='=') }}
     ) AS a
-    WHERE a.rank = 1
 ),
 
 {%- endif %}
@@ -63,9 +53,8 @@ records_to_insert AS (
     FROM source_data AS stage
     {%- if dbtvault.is_any_incremental() %}
         LEFT JOIN latest_records
-        ON {{ dbtvault.multikey(src_pk, prefix=['latest_records','stage'], condition='=') }}
-        WHERE {{ dbtvault.prefix([src_hashdiff], 'latest_records', alias_target='target') }} != {{ dbtvault.prefix([src_hashdiff], 'stage') }}
-            OR {{ dbtvault.prefix([src_hashdiff], 'latest_records', alias_target='target') }} IS NULL
+        ON {{ dbtvault.multikey(src_hashdiff, prefix=['latest_records','stage'], condition='=') }}
+        WHERE  {{ dbtvault.prefix([src_hashdiff], 'latest_records', alias_target='target') }} IS NULL
     {%- endif %}
 )
 

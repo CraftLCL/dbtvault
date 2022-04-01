@@ -135,7 +135,6 @@
                 '{{ start_date }}'::TIMESTAMP AS start_timestamp,
                 COALESCE({{  "NULLIF('" ~ stop_date | lower ~ "','none')::TIMESTAMP" }},
                          {{ dbtvault.current_timestamp() }} ) AS stop_timestamp
-            FROM {{ target_schema }}.{{ target_table }}
         )
         SELECT
             start_timestamp,
