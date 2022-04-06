@@ -23,7 +23,7 @@
 
 {%- set max_datetime = var('max_datetime', '9999-12-31 23:59:59.9999999') %}
 
-WITH source_data AS (
+WITH before_source_data AS (
     SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }}
     FROM {{ ref(source_model) }} AS a
     WHERE {{ dbtvault.multikey(src_dfk, prefix='a', condition='IS NOT NULL') }}
@@ -34,7 +34,20 @@ WITH source_data AS (
     AND __RANK_FILTER__
     {%- endif %}
 ),
-
+{# 这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 #}
+source_data AS (
+    SELECT {{ dbtvault.alias_all(source_cols, 'r') }}
+    FROM
+    (
+    SELECT bf.*,
+           ROW_NUMBER() OVER(
+               PARTITION BY {{ dbtvault.prefix([src_pk], 'bf') }}
+               ORDER BY {{ dbtvault.prefix([src_ldts], 'bf') }}, {{ dbtvault.prefix([src_source], 'bf') }} desc
+           ) AS row_rank_number
+    FROM before_source_data bf
+    ) r
+    WHERE r.row_rank_number = 1
+),
 {%- if dbtvault.is_any_incremental() %}
 
 {# Selecting the most recent records for each link hashkey -#}

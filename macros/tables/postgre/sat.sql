@@ -37,12 +37,27 @@ WITH source_data AS (
 
 {% if dbtvault.is_any_incremental() %}
 
+{# 
+这种写法可以更新之前插入得数据，获得正确的ENDTIME 需要配置unique key 如hashdiff
+distinct_source(
+    SELECT DISTINCT {{ dbtvault.prefix(src_pk, 'a', alias_target='source') }}   FROM source_data a
+),
+all_source_data AS(
+    SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }}
+    FROM {{ ref(source_model) }} AS a
+    LEFT JOIN distinct_source
+    ON {{ dbtvault.multikey([src_pk], prefix=['distinct_source','a'], condition='=') }}
+    WHERE {{ dbtvault.multikey(src_pk, prefix='distinct_source', condition='IS NOT NULL') }}
+)
+, #}
 latest_records AS (
     SELECT {{ dbtvault.prefix(rank_cols, 'a', alias_target='target') }}
     FROM
     (
-        SELECT {{ dbtvault.prefix(rank_cols, 'current_records', alias_target='target') }}
-        FROM {{ this }} AS current_records
+        SELECT {{ dbtvault.prefix(rank_cols, 'source',
+         alias_target='target') }}
+        FROM source_data AS source
+        {# FROM all_source_data AS source #}
     ) AS a
 ),
 
@@ -53,7 +68,7 @@ records_to_insert AS (
     FROM source_data AS stage
     {%- if dbtvault.is_any_incremental() %}
         LEFT JOIN latest_records
-        ON {{ dbtvault.multikey(src_hashdiff, prefix=['latest_records','stage'], condition='=') }}
+        ON {{ dbtvault.multikey([src_hashdiff], prefix=['latest_records','stage'], condition='=') }}
         WHERE  {{ dbtvault.prefix([src_hashdiff], 'latest_records', alias_target='target') }} IS NULL
     {%- endif %}
 )
