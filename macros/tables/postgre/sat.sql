@@ -56,7 +56,7 @@ latest_records AS (
     (
         SELECT {{ dbtvault.prefix(rank_cols, 'source',
          alias_target='target') }}
-        FROM source_data AS source
+        FROM {{ this }} AS source
         {# FROM all_source_data AS source #}
     ) AS a
 ),
