@@ -46,7 +46,8 @@ row_rank_{{ source_number }} AS (
                    PARTITION BY {{ dbtvault.prefix([src_pk], 'rr') }}
                    ORDER BY {{ dbtvault.prefix([src_ldts], 'rr') }}
                ) AS row_number
-        FROM {{ ref(src) }} AS rr
+        FROM dwd.{{src}}  AS rr
+        {# FROM {{ ref(src) }} AS rr #}
         WHERE {{ dbtvault.multikey(src_pk, prefix='rr', condition='IS NOT NULL') }}
     ) h
     WHERE h.row_number = 1
