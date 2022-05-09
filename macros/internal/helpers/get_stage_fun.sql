@@ -11,5 +11,13 @@
 {%- endmacro -%}
 
 {%- macro get_end_date() -%}
-    coalesce(to_timestamp(cast(lead(ts, 1, null) over ( partition by id order by ts) as float) / 1000) at time zone 'Asia/Shanghai','9999-12-31 23:59:59.999999')
+    coalesce(to_timestamp(cast(lead(ts, 1, null) over ( partition by 
+    {%- for column in columns -%}
+        {%- if loop.last -%}
+            {{- " {} ".format(column) -}}
+        {%- else -%}
+            {{- " {}".format(column)~"," -}}
+        {%- endif -%}
+    {%- endfor -%}
+    order by ts) as float) / 1000) at time zone 'Asia/Shanghai','9999-12-31 23:59:59.999999')
 {%- endmacro -%}
