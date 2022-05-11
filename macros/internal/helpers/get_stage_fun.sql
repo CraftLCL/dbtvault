@@ -10,7 +10,7 @@
     case when ts = {{default}} then '1999-1-01 1:00:00.000' else to_timestamp(cast(ts as float) / 1000) at time zone 'Asia/Shanghai' end
 {%- endmacro -%}
 
-{%- macro get_end_date() -%}
+{%- macro get_end_date(columns) -%}
     coalesce(to_timestamp(cast(lead(ts, 1, null) over ( partition by 
     {%- for column in columns -%}
         {%- if loop.last -%}
