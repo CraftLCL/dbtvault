@@ -266,7 +266,7 @@
     {%- else -%}
         {%- set escaped_column_str = dbtvault.escape_column_names(column_str) -%}
     {%- endif -%}
-    {{- "CAST(({}({})) AS BYTEA ) AS {}".format(hash_alg, standardise | replace('[EXPRESSION]', escaped_column_str), dbtvault.escape_column_names(alias)) | indent(4) -}}
+    {{- "coalesce(CAST(({}({})) AS BYTEA ),'22222222222222222222222222222222') AS {}".format(hash_alg, standardise | replace('[EXPRESSION]', escaped_column_str), dbtvault.escape_column_names(alias)) | indent(4) -}}
 
 {#- Else a list of columns to hash -#}
 {%- else -%}
