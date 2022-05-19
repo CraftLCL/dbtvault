@@ -34,7 +34,10 @@ WITH before_source_data AS (
     AND __RANK_FILTER__
     {%- endif %}
 ),
-{# 这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 #}
+{# 
+    这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 
+    原来orderby使用的是src_ldts但是在我们这一次加载中还有历史数据load_datetime中的数据不能表述数据到达的先后顺序，所以我们这使用eff
+-#}
 source_data AS (
     SELECT {{ dbtvault.alias_all(source_cols, 'r') }}
     FROM
@@ -42,7 +45,7 @@ source_data AS (
     SELECT bf.*,
            ROW_NUMBER() OVER(
                PARTITION BY {{ dbtvault.prefix([src_pk], 'bf') }}
-               ORDER BY {{ dbtvault.prefix([src_ldts], 'bf') }} desc, {{ dbtvault.prefix([src_source], 'bf') }} 
+               ORDER BY {{ dbtvault.prefix([src_eff], 'bf') }} desc, {{ dbtvault.prefix([src_source], 'bf') }} 
            ) AS row_rank_number
     FROM before_source_data bf
     ) r
@@ -58,7 +61,7 @@ latest_records AS (
         SELECT {{ dbtvault.alias_all(source_cols, 'b') }},
                ROW_NUMBER() OVER (
                     PARTITION BY {{ dbtvault.prefix([src_pk], 'b') }}
-                    ORDER BY b.{{ src_ldts }} DESC
+                    ORDER BY b.{{ src_eff }} DESC
                ) AS row_num
         FROM {{ this }} AS b
     ) l
