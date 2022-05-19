@@ -273,9 +273,9 @@
     {%- set all_null = [] -%}
 
     {%- if is_hashdiff -%}
-        {{- "CAST({}(CONCAT_WS('{}',".format(hash_alg, concat_string) | indent(4) -}}
+        {{- "coalesce(CAST({}(CONCAT_WS('{}',".format(hash_alg, concat_string) | indent(4) -}}
     {%- else -%}
-        {{- "CAST({}(NULLIF(CONCAT_WS('{}',".format(hash_alg, concat_string) | indent(4) -}}
+        {{- "coalesce(CAST({}(NULLIF(CONCAT_WS('{}',".format(hash_alg, concat_string) | indent(4) -}}
     {%- endif -%}
 
     {%- for column in columns -%}
@@ -294,9 +294,9 @@
         {%- if loop.last -%}
 
             {% if is_hashdiff %}
-                {{- "\n)) AS BYTEA ) AS {}".format( dbtvault.escape_column_names(alias)) -}}
+                {{- "\n)) AS BYTEA ),'22222222222222222222222222222222') AS {}".format( dbtvault.escape_column_names(alias)) -}}
             {%- else -%}
-                {{- "\n), '{}')) AS BYTEA) AS {}".format(all_null | join(""), dbtvault.escape_column_names(alias)) -}}
+                {{- "\n), '{}')) AS BYTEA),'22222222222222222222222222222222') AS {}".format(all_null | join(""), dbtvault.escape_column_names(alias)) -}}
             {%- endif -%}
         {%- else -%}
 
