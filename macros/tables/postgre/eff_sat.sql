@@ -24,7 +24,7 @@
 {%- set max_datetime = var('max_datetime', '9999-12-31 23:59:59.999999') %}
 
 WITH before_source_data AS (
-    SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }}
+    SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }},ts
     FROM {{ ref(source_model) }} AS a
     WHERE {{ dbtvault.multikey(src_dfk, prefix='a', condition='IS NOT NULL') }}
     AND {{ dbtvault.multikey(src_sfk, prefix='a', condition='IS NOT NULL') }}
@@ -36,7 +36,7 @@ WITH before_source_data AS (
 ),
 {# 
     这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 
-    原来orderby使用的是src_ldts但是在我们这一次加载中还有历史数据load_datetime中的数据不能表述数据到达的先后顺序，所以我们这使用eff
+    eff不能完全表达完全的事物时间 因为只精确到了秒，这时候需要ts来辅助确定先后顺序
 -#}
 source_data AS (
     SELECT {{ dbtvault.alias_all(source_cols, 'r') }}
@@ -45,7 +45,7 @@ source_data AS (
     SELECT bf.*,
            ROW_NUMBER() OVER(
                PARTITION BY {{ dbtvault.prefix([src_pk], 'bf') }}
-               ORDER BY {{ dbtvault.prefix([src_eff], 'bf') }} desc, {{ dbtvault.prefix([src_source], 'bf') }} 
+               ORDER BY {{ dbtvault.prefix([src_eff], 'bf') }} desc, ts desc ,{{ dbtvault.prefix([src_source], 'bf') }} 
            ) AS row_rank_number
     FROM before_source_data bf
     ) r
