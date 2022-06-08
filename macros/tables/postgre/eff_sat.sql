@@ -24,15 +24,20 @@
 {%- set max_datetime = var('max_datetime', '9999-12-31 23:59:59.999999') %}
 
 WITH before_source_data AS (
-    SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }},ts
-    FROM {{ ref(source_model) }} AS a
-    WHERE {{ dbtvault.multikey(src_dfk, prefix='a', condition='IS NOT NULL') }}
-    AND {{ dbtvault.multikey(src_sfk, prefix='a', condition='IS NOT NULL') }}
-    {%- if model.config.materialized == 'vault_insert_by_period' %}
-    AND __PERIOD_FILTER__
-    {%- elif model.config.materialized == 'vault_insert_by_rank' %}
-    AND __RANK_FILTER__
-    {%- endif %}
+
+    SELECT * FROM (
+        SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }},ts
+        FROM {{ ref(source_model) }} AS a
+        WHERE {{ dbtvault.multikey(src_dfk, prefix='a', condition='IS NOT NULL') }}
+        AND {{ dbtvault.multikey(src_sfk, prefix='a', condition='IS NOT NULL') }}
+        {%- if model.config.materialized == 'vault_insert_by_period' %}
+        AND __PERIOD_FILTER__
+        {%- elif model.config.materialized == 'vault_insert_by_rank' %}
+        AND __RANK_FILTER__
+        {%- endif %}
+    ) M
+    WHERE is_deleted_etl=false
+    
 ),
 {# 
     这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 
