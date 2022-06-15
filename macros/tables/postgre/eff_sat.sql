@@ -26,7 +26,7 @@
 WITH before_source_data AS (
 
     SELECT * FROM (
-        SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }},ts
+        SELECT {{ dbtvault.prefix(source_cols, 'a', alias_target='source') }},ts,is_deleted_etl
         FROM {{ ref(source_model) }} AS a
         WHERE {{ dbtvault.multikey(src_dfk, prefix='a', condition='IS NOT NULL') }}
         AND {{ dbtvault.multikey(src_sfk, prefix='a', condition='IS NOT NULL') }}
