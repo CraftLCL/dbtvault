@@ -36,12 +36,13 @@ WITH before_source_data AS (
         AND __RANK_FILTER__
         {%- endif %}
     ) M
-    WHERE is_deleted_etl=false
     
 ),
 {# 
     这里取的是相同pk的最后一条记录，endtime用于两个实体之间的关系还是否有效，中途有效的相同pk没有意义 
     eff不能完全表达完全的事物时间 因为只精确到了秒，这时候需要ts来辅助确定先后顺序
+
+    20220726 基于历史好像不能跑改成取当前最新的数据
 -#}
 source_data AS (
     SELECT {{ dbtvault.alias_all(source_cols, 'r') }}
@@ -49,12 +50,12 @@ source_data AS (
     (
     SELECT bf.*,
            ROW_NUMBER() OVER(
-               PARTITION BY {{ dbtvault.prefix([src_pk], 'bf') }}
+               PARTITION BY {{ dbtvault.prefix([src_dfk], 'bf') }}
                ORDER BY {{ dbtvault.prefix([src_eff], 'bf') }} desc, ts desc ,{{ dbtvault.prefix([src_source], 'bf') }} 
            ) AS row_rank_number
     FROM before_source_data bf
     ) r
-    WHERE r.row_rank_number = 1
+    WHERE r.row_rank_number = 1 and is_deleted_etl=false
 ),
 {%- if dbtvault.is_any_incremental() %}
 
