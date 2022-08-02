@@ -266,7 +266,7 @@
     {%- else -%}
         {%- set escaped_column_str = dbtvault.escape_column_names(column_str) -%}
     {%- endif -%}
-    {{- "coalesce(CAST(({}({})) AS BYTEA ),'22222222222222222222222222222222') AS {}".format(hash_alg, standardise | replace('[EXPRESSION]', escaped_column_str), dbtvault.escape_column_names(alias)) | indent(4) -}}
+    {{- "coalesce(CAST(({}({})) AS numeric ),'22222222222222222222222222222222') AS {}".format(hash_alg, standardise | replace('[EXPRESSION]', escaped_column_str), dbtvault.escape_column_names(alias)) | indent(4) -}}
 
 {#- Else a list of columns to hash -#}
 {%- else -%}
@@ -294,9 +294,9 @@
         {%- if loop.last -%}
 
             {% if is_hashdiff %}
-                {{- "\n)) AS BYTEA ),'22222222222222222222222222222222') AS {}".format( dbtvault.escape_column_names(alias)) -}}
+                {{- "\n)) AS numeric ),'22222222222222222222222222222222') AS {}".format( dbtvault.escape_column_names(alias)) -}}
             {%- else -%}
-                {{- "\n), '{}')) AS BYTEA),'22222222222222222222222222222222') AS {}".format(all_null | join(""), dbtvault.escape_column_names(alias)) -}}
+                {{- "\n), '{}')) AS numeric),'22222222222222222222222222222222') AS {}".format(all_null | join(""), dbtvault.escape_column_names(alias)) -}}
             {%- endif -%}
         {%- else -%}
 
