@@ -241,13 +241,13 @@
 
 {#- Select hashing algorithm -#}
 {%- if hash == 'MD5' -%}
-    {%- set hash_alg = 'MD5' -%}
+    {%- set hash_alg = 'MD5_INT' -%}
     {%- set hash_size = 16 -%}
 {%- elif hash == 'SHA' -%}
     {%- set hash_alg = 'SHA256' -%}
     {%- set hash_size = 32 -%}
 {%- else -%}
-    {%- set hash_alg = 'MD5' -%}
+    {%- set hash_alg = 'MD5_INT' -%}
     {%- set hash_size = 16 -%}
 {%- endif -%}
 
